@@ -3,3 +3,7 @@ diffusers==0.30.0
 accelerate==1.1.1
 sentencepiece==0.2.0
 protobuf==5.28.3
+boto3==1.35.76
+fastapi[standard]==0.115.5
+pillow==10.4.0
+numpy==1.26.4

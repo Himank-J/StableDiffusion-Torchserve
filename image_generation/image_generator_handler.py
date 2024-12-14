@@ -51,7 +51,7 @@ class SD3Handler(BaseHandler, ABC):
             logger.info(f"GPU Memory before loading: {torch.cuda.memory_allocated()/1e9:.2f}GB")
 
         zip_path = model_dir + "/sd3-model.zip"
-        extract_path = model_dir + "/model"
+        extract_path = model_dir + "/sd3-model-weights"
         logger.info(f"Starting to extract model from {zip_path} to {extract_path}")
         
         try:
@@ -67,7 +67,7 @@ class SD3Handler(BaseHandler, ABC):
         try:
             self.pipe = StableDiffusion3Pipeline.from_pretrained(
                 extract_path,
-                torch_dtype=torch.bfloat16
+                torch_dtype=torch.bfloat16,
             )
             logger.info("Pipeline loaded successfully")
             
@@ -152,5 +152,3 @@ class SD3Handler(BaseHandler, ABC):
         end_time = time.time()
         logger.info(f"Postprocessing completed in {end_time - start_time:.2f} seconds")
         return images 
-
-
