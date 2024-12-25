@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  torchserve:
+    image: pytorch/torchserve:0.12.0-gpu
+    ports:
+      - "8080:8080"  
+      - "8081:8081"  
+      - "8082:8082"  
+      - "7070:7070"  
+      - "7071:7071"
+    volumes:
+      - ./model-store:/home/model-server/model-store
+      - ./config.properties:/home/model-server/config.properties
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    shm_size: '1g'
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    command: torchserve --model-store=/home/model-server/model-store
+
+  fastapi:
+    build:
+      context: ./image_generation
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - TORCHSERVE_URL=http://torchserve:8080
+    depends_on:
+      - torchserve
+
+  frontend:
+    build:
+      context: ./sd3-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+    depends_on:
+      - fastapi
